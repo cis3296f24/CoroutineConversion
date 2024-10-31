@@ -7,9 +7,16 @@ import android.os.Looper
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
+
+    private val coroutinesco = CoroutineScope(Dispatchers.Default)
 
     //TODO (Refactor to replace Thread code with coroutines)
 
@@ -32,13 +39,23 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        findViewById<Button>(R.id.revealButton).setOnClickListener{
-            Thread{
-                repeat(100) {
-                    handler.sendEmptyMessage(it)
-                    Thread.sleep(40)
+        cakeImageView
+
+        findViewById<Button>(R.id.revealButton).setOnClickListener {
+            coroutinesco.launch {
+                fadeImage()
+            }
+        }
+    }
+
+    private suspend fun fadeImage() {
+        coroutinesco.launch {
+            repeat(100) {
+                withContext(Dispatchers.Main) {
+                    cakeImageView.alpha = it / 100f
                 }
-            }.start()
+                delay(40)
+            }
         }
     }
 }
